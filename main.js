@@ -45,19 +45,20 @@ ipcMain.on('window-maximize', () => {
 //this closes the window
 ipcMain.on('window-close', () => {
     if (mainWindow) mainWindow.close();
+    console.log("close pressed. main")
 });
 
 // Handle file operations
 // creates a new file 
 ipcMain.on('new-file', () => {
-    console.log('New File triggered');
+    console.log('New File triggered. main');
     // Logic for creating a new file (e.g., clearing the editor or resetting state)
     mainWindow.webContents.send('file-created', 'New file created');
 });
 
 //opens an existing file
 ipcMain.on('open-file', async () => {
-    console.log('Open File triggered');
+    console.log('Open File triggered. main');
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'],
     });
@@ -69,7 +70,7 @@ ipcMain.on('open-file', async () => {
 
 // saves the current file
 ipcMain.on('save-file', async () => {
-    console.log('Save File triggered');
+    console.log('Save File triggered. main');
     const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
         filters: [{ name: 'Text Files', extensions: ['txt', 'md', 'json'] }],
     });

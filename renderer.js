@@ -1,32 +1,37 @@
 //is the actual file that handels the button clicks and calls the functions in preload.js
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('New-file').addEventListener('click', () => {
+    document.getElementById('new-file').addEventListener('click', () => {
         window.electron.newFile(); // Call the new file function exposed by preload.js
+        console.log("new file clicked");
     });
 
-    document.getElementById('Open-file').addEventListener('click', () => {
+    document.getElementById('open-file').addEventListener('click', () => {
         window.electron.openFile();
-        renderFile(filepath); // Call the open file function exposed by preload.js
+        renderFile(folderPath); // Call the open file function exposed by preload.js
+        console.log("open file clicked");
     });
 
     window.electron.onFolderOpened((folderPath) => {
     loadDirectory(folderPath);
     });
 
-    document.getElementById('Save-file').addEventListener('click', () => {
+    document.getElementById('save-file').addEventListener('click', () => {
         console.log('Save File clicked');
         window.electron.saveFile(); // Call the save file function exposed by preload.js
     });
 
     document.getElementById('minimize').addEventListener('click', () => {
         window.electron.minimize(); // Call the minimize function exposed by preload.js
+        console.log("minimize clicked");
     });
 
     document.getElementById('maximize').addEventListener('click', () => {
         window.electron.maximize(); // Call the maximize function exposed by preload.js
+        console.log("maximize clicked");
     });
     document.getElementById('close').addEventListener('click', () => {
         window.electron.close(); // Call the close function exposed by preload.js
+        console.log("close clicked");
     });
 
     //viewport

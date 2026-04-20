@@ -85,7 +85,7 @@
     margin-right: 10px; 
 }
 .title-bar .window-controls button {
-    width: 36px; 
+    width: 50px; 
     height: 28px; 
     background: transparent;
     border: none;
@@ -161,7 +161,7 @@ files {
 #Viewport {
     position: fixed;
     left: 250px;
-    width: calc(80% - 250px); 
+    width: calc(100% - 250px); 
     height: 100vh;
     background: #444;
     overflow-y: auto;
