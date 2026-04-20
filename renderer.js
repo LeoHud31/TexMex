@@ -72,7 +72,6 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;');
 }
 
-
   //folder display
     const fileList = document.getElementById('fileList');
 
@@ -96,6 +95,7 @@ function escapeHtml(text) {
                     loadDirectory(item.fullPath);
                 } else {
                     //handle file click. open in editor
+                    renderFile(item.fullPath);
                 }
             });
             fileList.appendChild(li);
@@ -103,43 +103,3 @@ function escapeHtml(text) {
     }
 });
 
-
-//timeline track
-const track = document.querySelector(".track");
-
-// Allow file drop from OS
-track.addEventListener("dragover", (e) => {
-  e.preventDefault();
-});
-
-track.addEventListener("drop", (e) => {
-  e.preventDefault();
-  const files = [...e.dataTransfer.files];
-
-  files.forEach(file => {
-    const clip = document.createElement("div");
-    clip.className = "clip";
-    clip.textContent = file.name;
-    clip.style.left = `${e.offsetX}px`; // drop position
-    clip.style.width = "150px"; // default size
-    clip.setAttribute("draggable", "true");
-    clip.dataset.filePath = file.path;
-
-    makeDraggable(clip);
-    track.appendChild(clip);
-  });
-});
-
-// This enables repositioning of clips after they're dropped
-function makeDraggable(clip) {
-  clip.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("text/plain", clip.dataset.filePath);
-    clip.dataset.startX = e.clientX;
-  });
-
-  clip.addEventListener("dragend", (e) => {
-    const deltaX = e.clientX - parseInt(clip.dataset.startX, 10);
-    const left = parseInt(clip.style.left, 10) || 0;
-    clip.style.left = `${left + deltaX}px`;
-  });
-}
