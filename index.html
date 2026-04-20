@@ -1,0 +1,47 @@
+<html>
+    <link rel="stylesheet" href="styles.css">
+
+<body>
+    <!--main header-->
+    <div class="title-bar">
+        <div class="Options">
+            <div class="dropdown">
+                <button id="File">File</button>
+                <div class="dropdown-content">
+                    <button id="New-File">New</button>
+                    <button id="Open-File">Open</button>
+                    <button id="Save-File">Save</button>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button id="Edit">Edit</button>
+                <div class="dropdown-content">
+                    <button id="Undo">Undo</button>
+                    <button id="Redo">Redo</button>
+                    <button id="Cut">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!--window controls-->
+        <div class="window-controls">
+            <button id="minimize">&#x2015;</button>
+            <button id="maximize">&#x25A1;</button>
+            <button id="close">&#x2715;</button>
+        </div>
+    </div>
+
+    <!--side bar for the files-->
+    <files>
+        <ul id="fileList"></ul>
+    </files>
+    
+    <!--main content area-->
+    <viewport id="Viewport">
+
+    </viewport>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>
