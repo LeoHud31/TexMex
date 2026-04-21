@@ -1,7 +1,12 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { exec, spawn } = require('child_process');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
 let mainWindow;
 
+//creates main app window
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 400,
@@ -82,9 +87,6 @@ ipcMain.on('save-file', async () => {
     }
 });
 //this is used for the file explorer functionality
-const fs = require('fs');
-const path = require('path');
-
 ipcMain.handle('read-dir', async (event, dirPath) => {
     const targetPath = dirPath || require('os').homedir();
     const items = fs.readdirSync(targetPath, { withFileTypes: true });
@@ -96,6 +98,87 @@ ipcMain.handle('read-dir', async (event, dirPath) => {
         fullpath: path.join(targetPath, item.name),
     }));
 });
+
+// creates the command needed to see if a compiler already exists
+function commandExists(command) {
+  return new Promise((resolve) => {
+    exec(
+      `${command} --version`,
+      { env: process.env, windowsHide: true },
+      (error) => resolve(!error)
+    );
+  });
+}
+
+//checks Tex engine and returns engine type if found, or returns null otherwise
+ipcMain.handle("check-tex-engine", async () => {
+  const engines = ["pdflatex", "xelatex", "lualatex"];
+
+  for (const engine of engines) {
+    const found = await commandExists(engine);
+    if (found) {
+      console.log(`TeX engine found: ${engine}`);
+      return { engine };
+    }
+  }
+
+  console.warn("No TeX engine found in PATH");
+  return { engine: null };
+});
+
+
+//TeX compiler handler with pdflatex
+
+//handler for the compile-text event, adds to tempory dir with texmex prefix, writes to main.tex
+ipcMain.handle("compile-tex", async (_event, { source, engine = "pdflatex" }) => {
+    if (typeof source !== "string" || source.trim().length === 0) {
+    throw new Error("No TeX source received from renderer");
+    }
+
+    const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "texmex-"));
+    const texFile = path.join(workDir, "main.tex");
+    const pdfFile = path.join(workDir, "main.pdf");
+    fs.writeFileSync(texFile, source, "utf8");
+
+    //finds the allowed latex engines and throws error if not supported
+    const allowed = new Set(["pdflatex", "xelatex", "lualatex"]);
+    if (!allowed.has(engine)) throw new Error("Unsupported engine");
+
+    //arguments for the TeX engine, sets interaction mode to nonstopmode to prevent user prompts, 
+    //halts on error,
+    //formats errors with file and line info,
+    //outputs to the temp directory
+    const args = [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+    ];    
+
+    //spawns the TeX process and captures its output, resolves with the log if successful,
+    //rejects with an error if compilation fails
+    const output = await new Promise((resolve, reject) => {
+        const proc = spawn(engine, args, { 
+            cwd: workDir,
+            windowsHide: true,
+            env: process.env 
+        });
+        let log = "";
+    
+        proc.stdout.on("data", d => { log += d.toString(); });
+        proc.stderr.on("data", d => { log += d.toString(); });
+
+        proc.on("error", reject);
+        proc.on("close", code => {
+          if (code === 0 && fs.existsSync(pdfFile)) resolve(log);
+          else reject(new Error(log || "TeX compile failed"));
+        });
+    });
+
+    return { ok: true, pdfPath: pdfFile, log: output };
+});
+
+
 
 //calls the createWindow function when the app is ready
 app.whenReady().then(createWindow);

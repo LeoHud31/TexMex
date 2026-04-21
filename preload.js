@@ -12,5 +12,8 @@ contextBridge.exposeInMainWorld('electron', {
     onFolderOpened: (callback) => ipcRenderer.on('folder-opened', (event, folderPath) => callback(folderPath)),
     saveFile: () => ipcRenderer.send('save-file'),
     selectFolder: () => ipcRenderer.invoke('select-folder'),
-    readDir: (path) => ipcRenderer.invoke('read-dir', path)
+    readDir: (path) => ipcRenderer.invoke('read-dir', path),
+    compileTex: (payload) => ipcRenderer.invoke('compile-tex', payload),
+    getTexBackend: () => ipcRenderer.invoke('check-tex-engine')
 });
+

@@ -4,6 +4,8 @@ import { defaultKeymap, history, historyKeymap, indentMore } from "https://esm.s
 import { autocompletion, startCompletion, acceptCompletion, completionStatus } from "https://esm.sh/@codemirror/autocomplete@6";
 import { latex, latexLanguage, latexCompletionSource } from "https://esm.sh/codemirror-lang-latex@0.2.0";
 
+
+
 const mount = document.getElementById("Editor");
 if (!mount) {
     throw new Error("Mount element not found");
@@ -93,3 +95,4 @@ console.log("editor working");
 
 //launches editor
 editor.focus();
+window.getEditorText = () => editor.state.doc.toString();
