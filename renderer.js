@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   newBtn?.addEventListener("click", () => window.electron.newFile());
   openBtn?.addEventListener("click", () => window.electron.openFile());
-  saveBtn?.addEventListener("click", () => window.electron.saveFile());
+  saveBtn?.addEventListener("click", () => window.electron.saveFile(window.getEditorText()));
   minBtn?.addEventListener("click", () => window.electron.minimize());
   maxBtn?.addEventListener("click", () => window.electron.maximize());
   closeBtn?.addEventListener("click", () => window.electron.close());
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       throw new Error("Editor returned empty/invalid TeX source");
     }
 
-    const result = await window.electron.compileTex({ source, engine });
+    const result = await window.electron.compileCurrentTex({ source, engine });
     preview.innerHTML = '<iframe style="width:100%;height:100%" frameborder="0"></iframe>';
     preview.querySelector("iframe").src = "file:///" + result.pdfPath.replace(/\\/g, "/");
   } catch (err) {

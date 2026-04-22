@@ -13,7 +13,8 @@ contextBridge.exposeInMainWorld('electron', {
     saveFile: () => ipcRenderer.send('save-file'),
     selectFolder: () => ipcRenderer.invoke('select-folder'),
     readDir: (path) => ipcRenderer.invoke('read-dir', path),
-    compileTex: (payload) => ipcRenderer.invoke('compile-tex', payload),
-    getTexBackend: () => ipcRenderer.invoke('check-tex-engine')
+    compileCurrentTex: (payload) => ipcRenderer.invoke('compile-tex', payload),
+    getTexBackend: () => ipcRenderer.invoke('check-tex-engine'),
+    saveFile: (text) => ipcRenderer.send('save-file', text),
 });
 

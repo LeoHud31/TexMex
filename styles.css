@@ -21,8 +21,8 @@
 }
 
 .title-bar .Options button{
-    width: 36px; 
-    height: 28px; 
+    width: 80px; 
+    height: 30px; 
     background: transparent;
     border: none;
     color: white;
@@ -60,7 +60,7 @@
 
 .dropdown-content button {
     color: white;
-    padding: 10px 16px;
+    /*padding: 10px 16px; */
     text-decoration: none;
     display: block;
     text-align: center;
@@ -85,8 +85,8 @@
     margin-right: 10px; 
 }
 .title-bar .window-controls button {
-    width: 60px; 
-    height: 28px; 
+    width: 40px; 
+    height: 30px; 
     background: transparent;
     border: none;
     color: white;

@@ -95,4 +95,5 @@ console.log("editor working");
 
 //launches editor
 editor.focus();
+//makes the editor text a string
 window.getEditorText = () => editor.state.doc.toString();

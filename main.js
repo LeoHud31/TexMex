@@ -64,26 +64,26 @@ ipcMain.on('new-file', () => {
 //opens an existing file
 ipcMain.on('open-file', async () => {
     console.log('Open File triggered. main');
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    const { cancelled, filePaths } = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'],
     });
 
-    if (!canceled && filePaths.length > 0) {
+    if (!cancelled && filePaths.length > 0) {
         mainWindow.webContents.send('folder-opened', filePaths[0]);
     }
 });
 
 // saves the current file
-ipcMain.on('save-file', async () => {
+ipcMain.on('save-file', async (_event, editorText) => {
+    console.log('Current directory:', __dirname);
     console.log('Save File triggered. main');
-    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
-        filters: [{ name: 'Text Files', extensions: ['txt', 'md', 'json'] }],
+    const { cancelled, filePath } = await dialog.showSaveDialog(mainWindow, {
+        filters: [{ name: '.tex', extensions: ['tex'] }],
     });
 
-    if (!canceled && filePath) {
+    if (!cancelled && filePath) {
         // Replace 'Your file content here' with the actual content to save
-        fs.writeFileSync(filePath, 'Your file content here', 'utf-8');
-        mainWindow.webContents.send('file-saved', 'File saved successfully');
+        fs.writeFileSync(filePath, editorText, 'utf-8');
     }
 });
 //this is used for the file explorer functionality

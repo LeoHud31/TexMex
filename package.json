@@ -1,0 +1,18 @@
+{
+  "name": "texmex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "keywords": [],
+  "author": "LeoHud31",
+  "license": "ISC",
+  "description": "A basic LaTeX editor built with Electron, featuring a live PDF preview and support for multiple TeX engines.",
+  "devDependencies": {
+    "electron": "^41.2.1"
+  },
+  "dependencies": {
+    "codemirror-lang-latex": "^0.2.0"
+  }
+}
