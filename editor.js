@@ -56,6 +56,7 @@ function shouldAutoTrigger(state) {
 }
 
 //defines the state
+//creates a template document
 const state = EditorState.create({
   doc: "\\documentclass{article}\n\\usepackage{hyperref}\n\\begin{document}\nHello world\n\\end{document}",
   extensions: [

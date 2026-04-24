@@ -82,8 +82,12 @@ ipcMain.on('save-file', async (_event, editorText) => {
     });
 
     if (!cancelled && filePath) {
-        // Replace 'Your file content here' with the actual content to save
+        // saves the content of the editor to the specified file path
         fs.writeFileSync(filePath, editorText, 'utf-8');
+
+        //reload saved file's folder in file explorer
+        mainWindow.webContents.send('folder-opened', path.dirname(filePath));
+        mainWindow.webContents.send('file-saved', filePath);
     }
 });
 //this is used for the file explorer functionality
@@ -132,6 +136,9 @@ ipcMain.handle("check-tex-engine", async () => {
 //handler for the compile-text event, adds to tempory dir with texmex prefix, writes to main.tex
 ipcMain.handle("compile-tex", async (_event, { source, engine = "pdflatex" }) => {
     if (typeof source !== "string" || source.trim().length === 0) {
+        console.log("source", source);
+        console.log("engine", engine);
+        console.log("length", source ? source.length : 0);
     throw new Error("No TeX source received from renderer");
     }
 

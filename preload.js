@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('electron', {
     newFile: () => ipcRenderer.send('new-file'),
     openFile: () => ipcRenderer.send('open-file'), // just send the event
     onFolderOpened: (callback) => ipcRenderer.on('folder-opened', (event, folderPath) => callback(folderPath)),
-    saveFile: () => ipcRenderer.send('save-file'),
+    //saveFile: () => ipcRenderer.send('save-file'),
     selectFolder: () => ipcRenderer.invoke('select-folder'),
     readDir: (path) => ipcRenderer.invoke('read-dir', path),
     compileCurrentTex: (payload) => ipcRenderer.invoke('compile-tex', payload),

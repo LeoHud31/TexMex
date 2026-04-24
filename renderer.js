@@ -8,30 +8,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeBtn = document.getElementById("close");
   const fileList = document.getElementById("fileList");
   const preview = document.getElementById("Preview");
-
-  newBtn?.addEventListener("click", () => window.electron.newFile());
-  openBtn?.addEventListener("click", () => window.electron.openFile());
-  saveBtn?.addEventListener("click", () => window.electron.saveFile(window.getEditorText()));
-  minBtn?.addEventListener("click", () => window.electron.minimize());
-  maxBtn?.addEventListener("click", () => window.electron.maximize());
-  closeBtn?.addEventListener("click", () => window.electron.close());
-
-  window.electron.onFolderOpened((folderPath) => {
-    loadDirectory(folderPath);
-  });
+  const renderBtn = document.getElementById("render-button");
 
   //logic for checking if a TeX engine is available and compiling the current document
   const backend = await window.electron.getTexBackend();
+  let currentEngine = backend?.engine || "pdflatex";
+
   if (backend && backend.engine){
       console.log("TeX engine available:", backend.engine);
-      compileCurrentTex(backend.engine);
   } else {
     console.log("No Tex engine found, using fallback mode")
     preview.textContent = "No Tex engine found in system PATH. Editor fallback mode is activated."
   }
   
-  await loadDirectory();
-
   async function loadDirectory(dirPath) {
       const files = await window.electron.readDir(dirPath);
       fileList.innerHTML = '';
@@ -46,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           li.addEventListener('click', (e) => {
               e.stopPropagation();
-              if (item.fullPath === 'folder') {
+              if (item.fullpath === 'folder') {
                   loadDirectory(item.fullPath);
               } else {
                   renderFile(item.fullPath);
@@ -58,48 +47,63 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   //gets the fileviewer element 
   function renderFile(filePath) {
-  const lower = filePath.toLowerCase();
+    const lower = filePath.toLowerCase();
 
-    if (/\.(png|jpg|jpeg|gif|svg|webp)$/.test(lower)) {
-      preview.innerHTML = '<img style="max-width:100%;max-height:100%;" />';
-      preview.querySelector("img").src = "file:///" + filePath.replace(/\\/g, "/");
-      return;
-    }
+      if (/\.(png|jpg|jpeg|gif|svg|webp)$/.test(lower)) {
+        preview.innerHTML = '<img style="max-width:100%;max-height:100%;" />';
+        preview.querySelector("img").src = "file:///" + filePath.replace(/\\/g, "/");
+        return;
+      }
 
-    if (/\.(mp4|webm|ogg)$/.test(lower)) {
-      preview.innerHTML = '<video controls style="max-width:100%;max-height:100%;"></video>';
-      preview.querySelector("video").src = "file:///" + filePath.replace(/\\/g, "/");
-      return;
-    }
+      if (/\.(mp4|webm|ogg)$/.test(lower)) {
+        preview.innerHTML = '<video controls style="max-width:100%;max-height:100%;"></video>';
+        preview.querySelector("video").src = "file:///" + filePath.replace(/\\/g, "/");
+        return;
+      }
 
-    if (/\.pdf$/.test(lower)) {
-      preview.innerHTML = '<iframe style="width:100%;height:100%;" frameborder="0"></iframe>';
-      preview.querySelector("iframe").src = "file:///" + filePath.replace(/\\/g, "/");
-      return;
-    }
+      if (/\.pdf$/.test(lower)) {
+        preview.innerHTML = '<iframe style="width:100%;height:100%;" frameborder="0"></iframe>';
+        preview.querySelector("iframe").src = "file:///" + filePath.replace(/\\/g, "/");
+        return;
+      }
 
-    preview.textContent = "Preview not supported for this file type.";
+      preview.textContent = "Preview not supported for this file type.";
   }
 
   //compiles the current tex document using the available engine and displays the PDF in the preview panel
   async function compileCurrentTex(engine) {
-  try {
-    if (typeof window.getEditorText !== "function") {
-      throw new Error("window.getEditorText is not available");
-    }
+    try {
+      if (typeof window.getEditorText !== "function") {
+        throw new Error("window.getEditorText is not available");
+      }
 
-    const source = window.getEditorText();
-    if (!source || typeof source !== "string") {
-      throw new Error("Editor returned empty/invalid TeX source");
-    }
+      const source = window.getEditorText();
+      if (!source || typeof source !== "string") {
+        throw new Error("Editor returned empty/invalid TeX source");
+      }
 
-    const result = await window.electron.compileCurrentTex({ source, engine });
-    preview.innerHTML = '<iframe style="width:100%;height:100%" frameborder="0"></iframe>';
-    preview.querySelector("iframe").src = "file:///" + result.pdfPath.replace(/\\/g, "/");
-  } catch (err) {
-    console.error("compileCurrentTex failed:", err);
-    preview.textContent = String(err.message || err);
+      const result = await window.electron.compileCurrentTex({ source, engine });
+    
+      preview.innerHTML = '<iframe style="width:100%;height:100%" frameborder="0"></iframe>';
+      preview.querySelector("iframe").src = "file:///" + result.pdfPath.replace(/\\/g, "/");
+    } catch (err) {
+      console.error("compileCurrentTex failed:", err);
+      preview.textContent = String(err.message || err);
+    } 
   }
-}
+
+newBtn?.addEventListener("click", () => window.electron.newFile());
+openBtn?.addEventListener("click", () => window.electron.openFile());
+saveBtn?.addEventListener("click", () => window.electron.saveFile(window.getEditorText()));
+minBtn?.addEventListener("click", () => window.electron.minimize());
+maxBtn?.addEventListener("click", () => window.electron.maximize());
+closeBtn?.addEventListener("click", () => window.electron.close());
+renderBtn?.addEventListener("click", () => { compileCurrentTex(currentEngine); });
+
+window.electron.onFolderOpened((folderPath) => {
+  loadDirectory(folderPath);
+});
+
+await loadDirectory();
 
 });
