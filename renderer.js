@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const backend = await window.electron.getTexBackend();
   let currentEngine = backend?.engine || "pdflatex";
 
+  let currentDirPath;
+
   if (backend && backend.engine){
       console.log("TeX engine available:", backend.engine);
   } else {
@@ -22,6 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   async function loadDirectory(dirPath) {
+      currentDirPath = dirPath || currentDirPath;
+
       const files = await window.electron.readDir(dirPath);
       fileList.innerHTML = '';
 
@@ -35,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           li.addEventListener('click', (e) => {
               e.stopPropagation();
-              if (item.fullpath === 'folder') {
+              if (item.isDirectory) {
                   loadDirectory(item.fullPath);
               } else {
                   renderFile(item.fullPath);
@@ -102,6 +106,15 @@ renderBtn?.addEventListener("click", () => { compileCurrentTex(currentEngine); }
 
 window.electron.onFolderOpened((folderPath) => {
   loadDirectory(folderPath);
+});
+
+window.electron.PDFdownload(({savePath}) => {
+    if (!savePath) return;
+
+    const slashIndex = Math.max(savePath.lastIndexOf('/'), savePath.lastIndexOf('\\'));
+    const folderPath = slashIndex >= 0 ? savePath.slice(0, slashIndex) : currentDirPath;
+
+    loadDirectory(folderPath);
 });
 
 await loadDirectory();

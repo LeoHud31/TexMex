@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('electron', {
     compileCurrentTex: (payload) => ipcRenderer.invoke('compile-tex', payload),
     getTexBackend: () => ipcRenderer.invoke('check-tex-engine'),
     saveFile: (text) => ipcRenderer.send('save-file', text),
+    PDFdownload: (callback) => ipcRenderer.on('pdf-download', (_event, pdfPath) => callback(pdfPath)),
 });
 

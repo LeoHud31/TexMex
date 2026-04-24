@@ -188,7 +188,23 @@ ipcMain.handle("compile-tex", async (_event, { source, engine = "pdflatex" }) =>
 
 
 //calls the createWindow function when the app is ready
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    createWindow();
+
+    const session = mainWindow.webContents.session;
+    session.on("will-download", (_event, item) => {
+        item.once("done", (_e, state) => {
+            if (!mainWindow) return;
+            if (state === "completed") {
+                mainWindow.webContents.send("pdf-download", {
+                    savePath: item.getSavePath(),
+                    filename: item.getFilename(),
+                });
+            }
+        });
+    });
+
+});
 
 // quits the app when all windows are closed, except on macOS
 //darwin is the name of the operating system that macOS is based on
