@@ -92,7 +92,7 @@ ipcMain.on('save-file', async (_event, editorText) => {
 });
 //this is used for the file explorer functionality
 ipcMain.handle('read-dir', async (event, dirPath) => {
-    const targetPath = dirPath || require('os').homedir();
+    const targetPath = path.join(process.cwd(), 'projects');
     const items = fs.readdirSync(targetPath, { withFileTypes: true });
     // Filter out hidden files (those starting with a dot)
     const visibleItems = items.filter(item => !item.name.startsWith('.'));

@@ -40,9 +40,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           li.addEventListener('click', (e) => {
               e.stopPropagation();
               if (item.isDirectory) {
-                  loadDirectory(item.fullPath);
+                  loadDirectory(item.fullpath);
               } else {
-                  renderFile(item.fullPath);
+                  renderFile(item.fullpath);
               }
           });
           fileList.appendChild(li);
