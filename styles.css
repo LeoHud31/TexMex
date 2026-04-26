@@ -18,6 +18,7 @@
     display: flex;
     gap: 16px; 
     -webkit-app-region: no-drag; 
+    z-index: 20;
 }
 
 .title-bar .Options button{
@@ -149,8 +150,7 @@ files {
     background: #098842;
     color: white;
     overflow-y: hidden;
-    border-right: 1px solid #444;
-    z-index: -1;
+    z-index: 10;
 }
 
 #fileList {

@@ -98,3 +98,13 @@ console.log("editor working");
 editor.focus();
 //makes the editor text a string
 window.getEditorText = () => editor.state.doc.toString();
+
+window.setEditorText = (text) => {
+  editor.dispatch({
+    changes: {
+      from: 0,
+      to: editor.state.doc.length,
+      insert: text
+    }
+  });
+};

@@ -92,15 +92,34 @@ ipcMain.on('save-file', async (_event, editorText) => {
 });
 //this is used for the file explorer functionality
 ipcMain.handle('read-dir', async (event, dirPath) => {
-    const targetPath = path.join(process.cwd(), 'projects');
-    const items = fs.readdirSync(targetPath, { withFileTypes: true });
-    // Filter out hidden files (those starting with a dot)
-    const visibleItems = items.filter(item => !item.name.startsWith('.'));
-    return visibleItems.map(item => ({
-        name: item.name,
-        isDirectory: item.isDirectory() ? 'folder' : 'file',
-        fullpath: path.join(targetPath, item.name),
-    }));
+    const projectsPath = path.join(process.cwd(), 'projects');
+    const rootPath = fs.existsSync(projectsPath) ? projectsPath : process.cwd();
+    const requestedPath = dirPath || rootPath;
+    const resolvedPath = path.resolve(requestedPath);
+
+    try {
+        const items = fs.readdirSync(resolvedPath, { withFileTypes: true });
+        const visibleItems = items.filter(item => !item.name.startsWith('.'));
+
+        return visibleItems.map(item => ({
+            name: item.name,
+            isDirectory: item.isDirectory() ? 'folder' : 'file',
+            fullpath: path.join(resolvedPath, item.name),
+        }));
+    } catch (err) {
+        console.error(`Error reading directory ${resolvedPath}:`, err);
+        throw err;
+    }
+});
+
+ipcMain.handle('read-text-file', async (event, filePath) => {
+    try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        return content;
+    } catch (err) {
+        console.error(`Error reading file ${filePath}:`, err);
+        throw err;
+    }
 });
 
 // creates the command needed to see if a compiler already exists
