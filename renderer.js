@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const renderBtn = document.getElementById("render-button");
 
   //logic for checking if a TeX engine is available and compiling the current document
+  let backend = null;
   try{
-  const backend = await window.electron.getTexBackend();
+    backend = await window.electron.getTexBackend();
   } catch (err) {
     console.error("Error checking TeX engine:", err);
   }
@@ -21,8 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentDirPath;
 
   //checks if the engine is available and logs it
-  if (backend && backend.engine){
-      console.log("TeX engine available:", backend.engine);
+  if (currentEngine){
+      console.log("TeX engine available:", currentEngine);
   } else {
     console.log("No Tex engine found, using fallback mode")
     preview.textContent = "No Tex engine found in system PATH. Editor fallback mode is activated."
@@ -151,7 +152,7 @@ try{
 }
 
 
-ipcRenderer.onfile-created( () => {
+window.electron.onFileCreated(() => {
     window.setEditorText("");
     preview.innerHTML = '';
     preview.textContent = "New file created.";
