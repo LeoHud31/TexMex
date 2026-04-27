@@ -22,7 +22,7 @@ const packages = [
 "tikz", "titlesec", "unicode-math", "url", "xcolor", "xparse"
 ];
 
-function completepackages(context) {
+function completePackages(context) {
     const line = context.state.doc.lineAt(context.pos);
     const uptoCursor = line.text.slice(0, context.pos - line.from);
 

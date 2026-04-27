@@ -19,11 +19,11 @@ function createWindow() {
         },
         frame: false, // removes the default window frame, custom added later
     });
-    mainWindow.maximize(), // maximizes the window
+    mainWindow.maximize(); // maximizes the window
     // loads the index.html file into the window
     mainWindow.loadFile('index.html');
 
-    mainWindow.on('window-close', function () {
+    mainWindow.on('closed', function () {
         mainWindow = null;
     });
 }
@@ -57,10 +57,11 @@ ipcMain.on('window-close', () => {
 ipcMain.on('new-file', () => {
     // Logic for creating a new file (e.g., clearing the editor or resetting state)
     mainWindow.webContents.send('file-created', 'New file created');
+
 });
 
 //opens an existing file
-ipcMain.on('open-file', async () => {
+ipcMain.on('open-folder', async () => {
     //uses openDirectory to make sure user can only select folder, cancelled = true if user cancels it
     const { cancelled, filePaths } = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'],

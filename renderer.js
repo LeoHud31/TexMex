@@ -11,7 +11,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const renderBtn = document.getElementById("render-button");
 
   //logic for checking if a TeX engine is available and compiling the current document
+  try{
   const backend = await window.electron.getTexBackend();
+  } catch (err) {
+    console.error("Error checking TeX engine:", err);
+  }
   let currentEngine = backend?.engine || "pdflatex";
 
   let currentDirPath;
@@ -140,6 +144,17 @@ window.electron.PDFdownload(({savePath}) => {
   loadDirectory(folderPath);
 });
 
-await loadDirectory();
+try{
+  await loadDirectory();
+} catch (err) {
+  console.error("No initial directory loaded:", err);
+}
+
+
+ipcRenderer.onfile-created( () => {
+    window.setEditorText("");
+    preview.innerHTML = '';
+    preview.textContent = "New file created.";
+});
 
 });
