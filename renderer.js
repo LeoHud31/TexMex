@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentDirPath;
 
+  //checks if the engine is available and logs it
   if (backend && backend.engine){
       console.log("TeX engine available:", backend.engine);
   } else {
@@ -37,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           li.className = item.isDirectory;
           li.style.cursor = 'pointer';
 
+          //saves data attributes for the files/folder path which is used when the user clicks it
           li.setAttribute('data-path', item.fullpath);
           li.setAttribute('data-type', item.isDirectory);
           li.setAttribute('data-name', item.name);
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           li.addEventListener('click', (e) => {
               e.stopPropagation();
 
+              //gets the path and type of the clicked item from the data attributes
               const clickedPath = li.getAttribute('data-path');
               const itemType = li.getAttribute('data-type');
 
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function renderFile(filePath) {
   const lower = filePath.toLowerCase();
 
+    //renders in the editor if text based file
     if (/\.(tex|bib|txt|md|log)$/i.test(lower)) {
       const text = await window.electron.readTextFile(filePath);
       window.setEditorText(text);
@@ -68,18 +72,21 @@ async function renderFile(filePath) {
       return;
     }
 
+    //renders image if its an image file
     if (/\.(png|jpg|jpeg|gif|svg|webp)$/.test(lower)) {
       preview.innerHTML = '<img style="max-width:100%;max-height:100%;" />';
       preview.querySelector("img").src = "file:///" + filePath.replace(/\\/g, "/");
       return;
     }
 
+    //renders video file
     if (/\.(mp4|webm|ogg)$/.test(lower)) {
       preview.innerHTML = '<video controls style="max-width:100%;max-height:100%;"></video>';
       preview.querySelector("video").src = "file:///" + filePath.replace(/\\/g, "/");
       return;
     }
 
+    //renders pdf in preview
     if (/\.pdf$/.test(lower)) {
       preview.innerHTML = '<iframe style="width:100%;height:100%;" frameborder="0"></iframe>';
       preview.querySelector("iframe").src = "file:///" + filePath.replace(/\\/g, "/");
@@ -96,6 +103,7 @@ async function compileCurrentTex(engine) {
       throw new Error("window.getEditorText is not available");
     }
 
+    //makes sure the source is a non-empty string before sending to backend
     const source = window.getEditorText();
     if (!source || typeof source !== "string") {
       throw new Error("Editor returned empty/invalid TeX source");

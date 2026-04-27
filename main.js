@@ -50,24 +50,23 @@ ipcMain.on('window-maximize', () => {
 //this closes the window
 ipcMain.on('window-close', () => {
     if (mainWindow) mainWindow.close();
-    console.log("close pressed. main")
 });
 
 // Handle file operations
 // creates a new file 
 ipcMain.on('new-file', () => {
-    console.log('New File triggered. main');
     // Logic for creating a new file (e.g., clearing the editor or resetting state)
     mainWindow.webContents.send('file-created', 'New file created');
 });
 
 //opens an existing file
 ipcMain.on('open-file', async () => {
-    console.log('Open File triggered. main');
+    //uses openDirectory to make sure user can only select folder, cancelled = true if user cancels it
     const { cancelled, filePaths } = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'],
     });
 
+    //only continues if user slects something
     if (!cancelled && filePaths.length > 0) {
         mainWindow.webContents.send('folder-opened', filePaths[0]);
     }
@@ -76,14 +75,14 @@ ipcMain.on('open-file', async () => {
 // saves the current file
 ipcMain.on('save-file', async (_event, editorText) => {
     console.log('Current directory:', __dirname);
-    console.log('Save File triggered. main');
     const { cancelled, filePath } = await dialog.showSaveDialog(mainWindow, {
+        //only shows files ending in .tex
         filters: [{ name: '.tex', extensions: ['tex'] }],
     });
 
     if (!cancelled && filePath) {
         // saves the content of the editor to the specified file path
-        fs.writeFileSync(filePath, editorText, 'utf-8');
+        await fs.promises.writeFile(filePath, editorText, 'utf-8');
 
         //reload saved file's folder in file explorer
         mainWindow.webContents.send('folder-opened', path.dirname(filePath));
@@ -92,13 +91,15 @@ ipcMain.on('save-file', async (_event, editorText) => {
 });
 //this is used for the file explorer functionality
 ipcMain.handle('read-dir', async (event, dirPath) => {
+    //chooses default folder if projects exists it uses that, if not uses current directory
     const projectsPath = path.join(process.cwd(), 'projects');
     const rootPath = fs.existsSync(projectsPath) ? projectsPath : process.cwd();
     const requestedPath = dirPath || rootPath;
     const resolvedPath = path.resolve(requestedPath);
 
     try {
-        const items = fs.readdirSync(resolvedPath, { withFileTypes: true });
+        //gets files/folders inside directory and hides hidden files if it starts with a dot, returns simplified objects
+        const items = await fs.promises.readdir(resolvedPath, { withFileTypes: true });
         const visibleItems = items.filter(item => !item.name.startsWith('.'));
 
         return visibleItems.map(item => ({
@@ -112,9 +113,10 @@ ipcMain.handle('read-dir', async (event, dirPath) => {
     }
 });
 
+//returns the content of a text file
 ipcMain.handle('read-text-file', async (event, filePath) => {
     try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = await fs.promises.readFile(filePath, 'utf-8');
         return content;
     } catch (err) {
         console.error(`Error reading file ${filePath}:`, err);
