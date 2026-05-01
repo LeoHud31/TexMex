@@ -93,9 +93,12 @@ ipcMain.on('save-file', async (_event, editorText) => {
 //this is used for the file explorer functionality
 ipcMain.handle('read-dir', async (event, dirPath) => {
     //chooses default folder if projects exists it uses that, if not uses current directory
-    const projectsPath = path.join(process.cwd(), 'projects');
-    const rootPath = fs.existsSync(projectsPath) ? projectsPath : process.cwd();
-    const requestedPath = dirPath || rootPath;
+    const baseDir = app.getPath('documents') || app.getPath('userData');
+    const rootPath = path.join(baseDir, 'TexMex Projects');
+
+    await fs.promises.mkdir(rootPath, { recursive: true });
+
+    const requestedPath = (typeof dirPath === 'string' && dirPath.trim().length > 0) ? dirPath : rootPath;
     const resolvedPath = path.resolve(requestedPath);
 
     try {
