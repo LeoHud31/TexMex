@@ -91,28 +91,45 @@ ipcMain.on('save-file', async (_event, editorText) => {
     }
 });
 //this is used for the file explorer functionality
-ipcMain.handle('read-dir', async (event, dirPath) => {
-    //chooses default folder if projects exists it uses that, if not uses current directory
-    const baseDir = app.getPath('documents') || app.getPath('userData');
+ipcMain.handle('setup-projects-dir', async () => {
+    try {
+        const projectDir = path.join(app.getPath('documents'), 'TexMex Projects');
+        await fs.promises.mkdir(projectDir, { recursive: true });
+        const texFilePath = path.join(projectDir, 'example.tex');
+        const exampleContent = "\\documentclass{article}\n\\usepackage{hyperref}\n\\begin{document}\nHello world\n\\end{document}";
+        
+        try{
+            await fs.promises.access(texFilePath);
+        } catch {
+            await fs.promises.writeFile(texFilePath, exampleContent, 'utf-8');
+        }
+        return { success: true, folder: projectDir, file: texFilePath };
+    } catch (err) {
+        console.error('Error setting up projects directory:', err);
+        return { success: false, error: err.message };
+    }
+});
+
+//reads the content of a directory, if no path is provided it defaults to the TexMex Projects folder in the user's documents
+ipcMain.handle('read-dir', async (event, dirPath, projectDir) => {
+    const baseDir = app.getPath('documents')
     const rootPath = path.join(baseDir, 'TexMex Projects');
 
     await fs.promises.mkdir(rootPath, { recursive: true });
 
     const requestedPath = (typeof dirPath === 'string' && dirPath.trim().length > 0) ? dirPath : rootPath;
-    const resolvedPath = path.resolve(requestedPath);
 
     try {
         //gets files/folders inside directory and hides hidden files if it starts with a dot, returns simplified objects
-        const items = await fs.promises.readdir(resolvedPath, { withFileTypes: true });
+        const items = await fs.promises.readdir(dirPath, { withFileTypes: true });
         const visibleItems = items.filter(item => !item.name.startsWith('.'));
-
         return visibleItems.map(item => ({
-            name: item.name,
-            isDirectory: item.isDirectory() ? 'folder' : 'file',
-            fullpath: path.join(resolvedPath, item.name),
+        name: item.name,
+        isDirectory: item.isDirectory() ? 'folder' : 'file',
+        fullpath: path.join(dirPath, item.name),
         }));
     } catch (err) {
-        console.error(`Error reading directory ${resolvedPath}:`, err);
+        console.error(`Error reading directory ${dirPath}:`, err);
         throw err;
     }
 });

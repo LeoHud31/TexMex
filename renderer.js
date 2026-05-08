@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   let currentEngine = backend?.engine || "pdflatex";
 
-  let currentDirPath;
-
   //checks if the engine is available and logs it
   if (currentEngine){
       console.log("TeX engine available:", currentEngine);
@@ -30,9 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   async function loadDirectory(dirPath) {
-      currentDirPath = dirPath || currentDirPath;
 
-      const files = await window.electron.readDir(currentDirPath);
+      const files = await window.electron.readDir(dirPath);
       fileList.innerHTML = '';
 
       //for each of files in dir, creates list item and adds click listener to open in viewer
@@ -140,13 +137,14 @@ window.electron.PDFdownload(({savePath}) => {
   if (!savePath) return;
 
   const slashIndex = Math.max(savePath.lastIndexOf('/'), savePath.lastIndexOf('\\'));
-  const folderPath = slashIndex >= 0 ? savePath.slice(0, slashIndex) : currentDirPath;
+  const folderPath = slashIndex >= 0 ? savePath.slice(0, slashIndex) : dirPath;
 
   loadDirectory(folderPath);
 });
 
 try{
-  await loadDirectory();
+  const setup = await window.electron.setupProjectsDir();
+  if (setup?.success) await loadDirectory(setup.folder);
 } catch (err) {
   console.error("No initial directory loaded:", err);
 }

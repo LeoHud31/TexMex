@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('electron', {
     getTexBackend: () => ipcRenderer.invoke('check-tex-engine'),
     saveFile: (text) => ipcRenderer.send('save-file', text),
     PDFdownload: (callback) => ipcRenderer.on('pdf-download', (_event, pdfPath) => callback(pdfPath)),
-    readTextFile: (filePath) => ipcRenderer.invoke('read-text-file', filePath)
+    readTextFile: (filePath) => ipcRenderer.invoke('read-text-file', filePath),
+    setupProjectsDir: () => ipcRenderer.invoke('setup-projects-dir')
 });
 
